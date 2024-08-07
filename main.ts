@@ -19,7 +19,9 @@ router.get("/", async (context) => {
     <div id="fingerprint"></div>
     <script>
       function getFingerprint() {
+        console.log("getFingerprint called");
         const existingFingerprint = Cookies.get('fingerprint');
+        console.log("Existing Fingerprint: ", existingFingerprint);
         if (existingFingerprint) {
           document.getElementById('fingerprint').innerText = 'Your Fingerprint ID: ' + existingFingerprint;
           return;
@@ -27,11 +29,12 @@ router.get("/", async (context) => {
 
         const client = new ClientJS();
         const fingerprint = client.getFingerprint();
+        console.log("New Fingerprint: ", fingerprint);
         Cookies.set('fingerprint', fingerprint, { expires: 365 });
         document.getElementById('fingerprint').innerText = 'Your new Fingerprint ID: ' + fingerprint;
       }
 
-      getFingerprint();
+      document.addEventListener("DOMContentLoaded", getFingerprint);
     </script>
   </body>
   </html>`;
