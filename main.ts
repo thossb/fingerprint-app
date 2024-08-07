@@ -26,30 +26,20 @@ router.get("/", async (context) => {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fingerprint ID</title>
-    <!-- ClientJS for generating fingerprint -->
-    <script src="/js/client.min.js"></script>
-    <!-- js-cookie for managing cookies -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/3.0.0/js.cookie.min.js"></script>
+    <!-- CreepJS for generating fingerprint -->
+    <script src="https://cdn.jsdelivr.net/npm/creepjs@1.0.8/dist/creep.min.js"></script>
   </head>
   <body>
     <h1>Your Fingerprint ID</h1>
     <div id="fingerprint"></div>
     <script>
-      function getFingerprint() {
+      async function getFingerprint() {
         console.log("getFingerprint called");
-        const existingFingerprint = Cookies.get('fingerprint');
-        console.log("Existing Fingerprint: ", existingFingerprint);
-        if (existingFingerprint) {
-          document.getElementById('fingerprint').innerText = 'Your Fingerprint ID: ' + existingFingerprint;
-          return;
-        }
-
         try {
-          const client = new ClientJS();
-          const fingerprint = client.getFingerprint();
+          const result = await creep.getFingerprint();
+          const fingerprint = result.visitorId;
           console.log("New Fingerprint: ", fingerprint);
-          Cookies.set('fingerprint', fingerprint, { expires: 365 });
-          document.getElementById('fingerprint').innerText = 'Your new Fingerprint ID: ' + fingerprint;
+          document.getElementById('fingerprint').innerText = 'Your Fingerprint ID: ' + fingerprint;
         } catch (error) {
           console.error("Failed to generate fingerprint: ", error);
           document.getElementById('fingerprint').innerText = 'Failed to generate fingerprint. Please try again later.';
@@ -58,12 +48,7 @@ router.get("/", async (context) => {
 
       document.addEventListener("DOMContentLoaded", () => {
         console.log("DOMContentLoaded event fired");
-        if (typeof ClientJS !== 'undefined') {
-          getFingerprint();
-        } else {
-          console.error("ClientJS is not defined at DOMContentLoaded");
-          document.getElementById('fingerprint').innerText = 'ClientJS is not defined. Please try again later.';
-        }
+        getFingerprint();
       });
     </script>
   </body>
