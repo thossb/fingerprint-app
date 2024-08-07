@@ -1,7 +1,21 @@
-import { Application, Router } from "./deps.ts";
+import { Application, Router, send } from "./deps.ts";
+import { join, dirname, fromFileUrl } from "https://deno.land/std@0.102.0/path/mod.ts";
 
 const app = new Application();
 const router = new Router();
+
+// Serve static files
+app.use(async (context, next) => {
+  const root = join(dirname(fromFileUrl(import.meta.url)), 'public');
+  try {
+    await send(context, context.request.url.pathname, {
+      root,
+      index: "index.html",
+    });
+  } catch {
+    await next();
+  }
+});
 
 // Define the root route
 router.get("/", async (context) => {
@@ -13,7 +27,7 @@ router.get("/", async (context) => {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fingerprint ID</title>
     <!-- ClientJS for generating fingerprint -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/clientjs/0.1.11/client.min.js"></script>
+    <script src="/js/client.min.js"></script>
     <!-- js-cookie for managing cookies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/3.0.0/js.cookie.min.js"></script>
   </head>
@@ -44,7 +58,12 @@ router.get("/", async (context) => {
 
       document.addEventListener("DOMContentLoaded", () => {
         console.log("DOMContentLoaded event fired");
-        getFingerprint();
+        if (typeof ClientJS !== 'undefined') {
+          getFingerprint();
+        } else {
+          console.error("ClientJS is not defined at DOMContentLoaded");
+          document.getElementById('fingerprint').innerText = 'ClientJS is not defined. Please try again later.';
+        }
       });
     </script>
   </body>
